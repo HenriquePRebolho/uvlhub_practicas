@@ -63,8 +63,8 @@ jobs:
       env:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
-  build:
 
+  build:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
@@ -79,3 +79,11 @@ jobs:
           # You can test your matrix by printing the current Python version
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
+
+
+  pip-audit:
+    steps:
+      - uses: pypa/gh-action-pip-audit@v1.1.0
+        with:
+          inputs: requirements.txt 
+
