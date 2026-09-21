@@ -82,6 +82,7 @@ jobs:
 
 
   pip-audit:
+    runs-on: ubuntu-24.04
     steps:
       - uses: pypa/gh-action-pip-audit@v1.1.0
         with:
