@@ -84,7 +84,6 @@ jobs:
   pip-audit:
     runs-on: ubuntu-24.04
     steps:
-      - uses: pypa/gh-action-pip-audit@v1.1.0
-        with:
-          inputs: requirements.txt 
-
+      - uses: actions/checkout@v4
+      - name: Check for package vulnerabilities with pip-audit
+        run: pip-audit
