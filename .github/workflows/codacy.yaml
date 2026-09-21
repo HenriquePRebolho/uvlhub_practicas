@@ -46,6 +46,12 @@ jobs:
       run: |
         pip list --outdated
 
+    - name: Pip-audit check for depencies vulnerabilities
+      run: |
+        pip install pip-audit
+        pip-audit -r requirements.txt
+
+
     - name: Run tests with coverage
       run: |
         coverage run -m pytest app/features/ --ignore-glob='*selenium*'
@@ -79,17 +85,3 @@ jobs:
           # You can test your matrix by printing the current Python version
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
-
-
-  pip-audit:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: install
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -e ./rosemary
-
-      - name: Check for vulnerabilities in dependencies
-        run: pip-audit
