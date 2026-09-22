@@ -1,5 +1,5 @@
 # https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#running-your-pull_request-workflow-when-a-pull-request-merges
-name: Deploy after PR is aproved and merged
+name: 6. Ejercicio Practico CD Render
 
 on:
   pull_request:
@@ -9,8 +9,59 @@ on:
       - main
 
 jobs:
-  if_merged:
+  if:
     if: github.event.pull_request.merged == true
+    runs-on: ubuntu-24.04
+    
+    services:
+      mariadb:
+        image: mariadb:12.0.2
+        env:
+          MARIADB_ROOT_PASSWORD: uvlhub_root_password
+          MARIADB_DATABASE: uvlhubdb_test
+          MARIADB_USER: uvlhub_user
+          MARIADB_PASSWORD: uvlhub_password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mariadb-admin ping -u root -p$MARIADB_ROOT_PASSWORD"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -e ./rosemary
+
+    - name: Run tests with coverage
+      run: |
+        coverage run -m pytest app/features/ --ignore-glob='*selenium*'
+        coverage xml
+      env:
+        FLASK_ENV: testing
+        MARIADB_HOSTNAME: 127.0.0.1
+        MARIADB_PORT: 3306
+        MARIADB_TEST_DATABASE: uvlhubdb_test
+        MARIADB_USER: uvlhub_user
+        MARIADB_PASSWORD: uvlhub_password
+
+    - name: Trigger Render display
+      run: |
+        curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+  
+  deploy:
+    needs: test
     runs-on: ubuntu-24.04
     steps:
       - name: Trigger Render display
