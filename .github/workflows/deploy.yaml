@@ -65,7 +65,7 @@ jobs:
   
   deploy:
     needs: test
-    if: github.event_name == "pull_request"
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
     steps:
       - name: Trigger Render display
