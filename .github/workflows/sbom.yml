@@ -1,0 +1,28 @@
+name: Generate SBOM
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  generate-sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Generar SBOM con Syft
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: syft-json
+          output-file: sbom.json
+
+      - name: Guardar SBOM como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-artifact
+          path: sbom.json
+          retention-days: 30
